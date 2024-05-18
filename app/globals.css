@@ -31,3 +31,14 @@ body {
     text-wrap: balance;
   }
 }
+
+.map-container {
+  height: 100vh;
+}
+
+.geocoder-container {
+  position: absolute;
+  z-index: 1;
+  top: 10;
+  left: 10;
+}
