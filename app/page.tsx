@@ -16,6 +16,9 @@ export default function Home() {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
+      dragRotate: false,
+      projection: 'mercator',
+      touchZoomRotate: false,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [lng, lat],
       zoom: zoom
