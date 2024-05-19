@@ -1,52 +1,106 @@
-"use client";
+"use client"; // Add this at the top of your component file
 
-import React, { useRef, useEffect } from 'react';
-import mapboxgl from 'mapbox-gl';
-import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import 'mapbox-gl/dist/mapbox-gl.css'; // Ensure to import default Mapbox and Geocoder styles
+import React, { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "mapbox-gl/dist/mapbox-gl.css";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || '';
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || "";
+
+const initialCoordinates = { lng: -122.9199, lat: 49.2781 }; // Coordinates for Simon Fraser University
 
 const MapComponent = () => {
-  const mapContainer = useRef(null);
-  const geocoderContainer = useRef(null); // Dedicated container for the geocoder
+  const mapContainerRef = useRef(null);
+  const geocoderContainerRef = useRef(null);
+  const markerRef = useRef(null); // Use ref to keep track of the marker instance
+  const [markerCoordinates, setMarkerCoordinates] =
+    useState(initialCoordinates);
 
   useEffect(() => {
-    if (!mapContainer.current) return; // exit if map container not initialized
-
     const map = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [-123.1207, 49.2827],
-      zoom: 9
+      container: mapContainerRef.current,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [markerCoordinates.lng, markerCoordinates.lat], // starting position [lng, lat]
+      zoom: 14, // starting zoom
     });
 
-    // Initialize the geocoder
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl,
-      placeholder: 'Search for places...',
-      marker: false,
+      marker: false, // Disable the default marker
     });
 
-    // Append geocoder to the geocoderContainer directly, without adding to map controls
-    if (geocoderContainer.current) {
-      geocoderContainer.current.appendChild(geocoder.onAdd(map));
+    if (geocoderContainerRef.current) {
+      geocoderContainerRef.current.appendChild(geocoder.onAdd(map));
     }
 
-    return () => {
-      map.remove(); // Cleanup map when component unmounts
-      if (geocoderContainer.current) {
-        geocoderContainer.current.removeChild(geocoderContainer.current.firstChild);
+    const marker = new mapboxgl.Marker({
+      draggable: true,
+    })
+      .setLngLat([markerCoordinates.lng, markerCoordinates.lat])
+      .addTo(map);
+
+    markerRef.current = marker; // Save the marker instance
+
+    marker.on("dragend", () => {
+      const lngLat = marker.getLngLat();
+      setMarkerCoordinates({ lng: lngLat.lng, lat: lngLat.lat });
+    });
+
+    geocoder.on("result", (event) => {
+      const { result } = event;
+      const lngLat = result.geometry.coordinates;
+      marker.setLngLat(lngLat);
+      setMarkerCoordinates({ lng: lngLat[0], lat: lngLat[1] });
+    });
+
+    // Hide the magnifying glass icon
+    const interval = setInterval(() => {
+      const icon = document.querySelector(".mapboxgl-ctrl-geocoder--icon");
+      if (icon) {
+        icon.style.display = "none";
+        clearInterval(interval);
       }
+    }, 100);
+
+    return () => {
+      if (geocoderContainerRef.current) {
+        geocoderContainerRef.current.innerHTML = ""; // Clear the geocoder container
+      }
+      map.remove();
     };
   }, []);
 
+  const saveCoordinates = async () => {
+    const jsonContent = JSON.stringify(markerCoordinates);
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: "coordinates.json",
+        types: [
+          {
+            description: "JSON Files",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+
+      const writable = await handle.createWritable();
+      await writable.write(jsonContent);
+      await writable.close();
+      alert("Coordinates saved successfully!");
+    } catch (err) {
+      console.error("Error saving the file:", err);
+    }
+  };
+
   return (
     <div>
-      <div ref={mapContainer} className="map-container" style={{ height: '100vh' }}>
-        <div ref={geocoderContainer} className="geocoder-container" />
-      </div>
+      <div ref={geocoderContainerRef} className="geocoder-container" />
+      <div ref={mapContainerRef} className="map-container" />
+      <button onClick={saveCoordinates} className="save-button">
+        Save Coordinates
+      </button>
     </div>
   );
 };
