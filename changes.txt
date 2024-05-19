@@ -1,3 +1,44 @@
 bc id 
 add something to refresh page refresh
 photoes/file upload
+
+
+
+
+const saveCoordinates = async () => {
+    const postData = {
+      type: "Feature",
+      properties: {
+        driver_license_number: "78499",
+        image_id: "39934",
+        time: Date.now()
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [markerCoordinates.lng, markerCoordinates.lat, 0.0]
+      }
+    };
+    
+    const url = "https://potholepatrolapi.co:8001/";
+    
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(postData)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Success:", data);
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
+      toggleMarker();
+  };
