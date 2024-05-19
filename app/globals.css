@@ -18,12 +18,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
@@ -32,50 +27,60 @@ body {
   }
 }
 
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
 
 .geocoder-container {
   position: absolute;
   color: black;
-  z-index: 1;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 400px; 
+  z-index: 1000;
+  top: 20px;
+  left: 20px;  /* Move to the left edge */
+  transform: none;  /* Remove centering transform */
+  width: 400px;
 }
 
-.geocoder-container input {
+.geocoder-container input[type="text"] {
   width: 100%;
   padding: 10px;
   color: black;
-  font-size: 16px; 
-}
-.map-container {
-  position: relative; /* Needed for absolute positioning of children */
-  width: 100%; /* Full width */
-  height: 100vh; /* Full height of the viewport */
-}
-
-.geocoder-container {
-  position: absolute;
-  top: 20px; /* Adjust this to move closer to the top of the map */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+  font-size: 16px;
+  border-radius: 20px;
+  background: white;
 }
 
 .mapboxgl-ctrl-geocoder {
-  width: 400px; /* Fixed width */
-  background: white; /* White background for readability */
-  overflow: hidden; /* Prevents text from wrapping to a new line */
-  white-space: nowrap; /* Keeps the text on a single line */
-  text-overflow: ellipsis; /* Adds ellipsis when text overflows */
-  border-radius: 20px; /* Rounded corners for the search bar */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Optional: Adds shadow for better visibility */
+  width: 400px;
+  overflow: visible;
+  white-space: nowrap;
+  background-color: white;
+  text-overflow: ellipsis;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
+
 .mapboxgl-ctrl-geocoder--icon {
-  display: none; /* Hides the magnifying glass icon */
+  display: none;
 }
 
 .mapboxgl-ctrl-geocoder--input {
-  padding-left: 10px; /* Adjust padding if necessary after icon removal */
+  padding-left: 10px;
+  border-radius: 20px;
+}
+
+.mapboxgl-ctrl-geocoder--results {
+  max-height: auto;
+  background: white;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  width: 100%;
+}
+
+.mapboxgl-ctrl-geocoder--suggestion {
+  padding: 10px;
+  border: none;
 }
