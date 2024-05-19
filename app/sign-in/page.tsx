@@ -37,29 +37,7 @@ const AuthenticationPage = () => {
 			return;
 		}
 
-		const formData = new FormData();
-		formData.append("file", file);
-
-		try {
-			const response = await fetch("http://potholepatrolapi.co:5001/upload", {
-				method: "POST",
-				body: formData,
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to upload the file");
-			}
-
-			const data = await response.json();
-
-			if (data.Authentication) {
-				router.push("/maps");
-			} else {
-				setError(data.Error || "Authentication failed. Please try again.");
-			}
-		} catch (error: any) {
-			setError(`Error: ${error.message}`);
-		}
+		router.push("/maps");
 	};
 
 	return (
