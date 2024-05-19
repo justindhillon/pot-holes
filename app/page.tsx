@@ -26,7 +26,28 @@ const MapComponent = () => {
   const [isMarkerVisible, setIsMarkerVisible] = useState(false); // State to manage marker visibility
   const [isExpanded, setIsExpanded] = useState(false); // State to manage menu expansion
   const mapInstanceRef = useRef<any>(null);
-
+function timeAgo(date: any) {
+    const now = new Date();
+    const secondsPast = (now.getTime() - date.getTime()) / 1000;
+  
+    if (secondsPast < 60) { // less than a minute
+      return `${Math.round(secondsPast)} seconds ago`;
+    }
+    if (secondsPast < 3600) { // less than an hour
+      return `${Math.round(secondsPast / 60)} minutes ago`;
+    }
+    if (secondsPast <= 86400) { // less than a day
+      return `${Math.round(secondsPast / 3600)} hours ago`;
+    }
+    if (secondsPast <= 2592000) { // less than a month
+      return `${Math.round(secondsPast / 86400)} days ago`;
+    }
+    if (secondsPast <= 31536000) { // less than a year
+      return `${Math.round(secondsPast / 2592000)} months ago`;
+    }
+    return `${Math.round(secondsPast / 31536000)} years ago`;
+  }
+  
   useEffect(() => {
     if (map) return; // Prevent reinitialization
 
@@ -111,31 +132,13 @@ const MapComponent = () => {
                 if (e.features && e.features.length > 0) {
                   const feature = e.features[0];
                   const properties = feature.properties;
-              
-                  // Log raw data values
-                  console.log("Raw time value:", properties?.time);
-                  console.log("Raw dateAdded value:", properties?.dateAdded);
-              
-                  // Parse time and dateAdded
+                  
                   const time = properties?.time ? new Date(properties.time) : null;
-                  const dateAdded = properties?.dateAdded ? new Date(properties.dateAdded) : null;
-              
-                  // Check if parsed dates are valid
                   const isValidTime = time && !isNaN(time.getTime());
-                  const isValidDateAdded = dateAdded && !isNaN(dateAdded.getTime());
               
-                  // Generate HTML content based on validation
                   let htmlContent = `<p>No valid data available</p>`;
-                  if (isValidDateAdded) {
-                    const dateAddedString = dateAdded.toLocaleDateString();
-                    const timeString = isValidTime ? time.toLocaleTimeString() : "Time unknown";
-                    htmlContent = `<p>Date: ${dateAddedString}</p><p>Time: ${timeString}</p>`;
-                  } else if (isValidTime) {
-                    const dateString = time.toLocaleDateString();
-                    const timeString = time.toLocaleTimeString();
-                    htmlContent = `<p>Date: ${dateString}</p><p>Time: ${timeString}</p>`;
-                  } else {
-                    htmlContent = `<p>No valid data available</p>`;
+                  if (isValidTime) {
+                    htmlContent = `<p>${timeAgo(time)}</p>`;
                   }
               
                   const coordinates = (feature.geometry as GeoJSON.Point).coordinates;
@@ -145,12 +148,6 @@ const MapComponent = () => {
                     .addTo(mapInstance);
                 }
               });
-              
-              
-              
-              
-              
-
               // Remove tooltip when the mouse leaves the layer
               mapInstance.on('mouseleave', 'earthquakes-layer', () => {
                 popup.remove();
