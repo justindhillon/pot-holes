@@ -7,49 +7,54 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { FaPlus, FaMinus } from 'react-icons/fa'; // Import icons
 
+// Extend Window interface for File System Access API
+interface CustomWindow extends Window {
+  showSaveFilePicker?: (options: any) => Promise<any>;
+}
+
+// Set Mapbox access token from environment variables
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || '';
 
-const initialCoordinates = { lng: -122.9199, lat: 49.2781 }; // Coordinates for Simon Fraser University
+const initialCoordinates = { lng: -122.9199, lat: 49.2781 }; // Default coordinates (e.g., Simon Fraser University)
 
 const MapComponent = () => {
-  const mapContainerRef = useRef(null);
-  const geocoderContainerRef = useRef(null);
-  const [map, setMap] = useState(null); // State to manage map instance
-  const [marker, setMarker] = useState(null); // State to manage marker instance
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const geocoderContainerRef = useRef<HTMLDivElement>(null);
+  const [map, setMap] = useState<mapboxgl.Map | null>(null);
+  const [marker, setMarker] = useState<mapboxgl.Marker | null>(null);
   const [markerCoordinates, setMarkerCoordinates] = useState(initialCoordinates);
-  const [isMarkerVisible, setIsMarkerVisible] = useState(false); // State to manage marker visibility
-  const [isExpanded, setIsExpanded] = useState(false); // State to manage menu expansion
+  const [isMarkerVisible, setIsMarkerVisible] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    if (map) return; // Initialize map only once
+    if (map) return; // Prevent reinitialization
 
     const initializeMap = () => {
       const mapInstance = new mapboxgl.Map({
-        container: mapContainerRef.current,
+        container: mapContainerRef.current!, // Assert non-null
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: [markerCoordinates.lng, markerCoordinates.lat], // starting position [lng, lat]
-        zoom: 14 // starting zoom
+        center: [markerCoordinates.lng, markerCoordinates.lat],
+        zoom: 14
       });
 
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
-        marker: false // Disable the default marker
+        marker: false
       });
 
       if (geocoderContainerRef.current) {
-        // Clear any existing geocoder to prevent multiple instances
         geocoderContainerRef.current.innerHTML = '';
         geocoderContainerRef.current.appendChild(geocoder.onAdd(mapInstance));
       }
 
       const newMarker = new mapboxgl.Marker({
-        draggable: false, // Marker should not be draggable
+        draggable: false,
         color: 'blue'
       }).setLngLat([markerCoordinates.lng, markerCoordinates.lat]);
 
-      setMarker(newMarker); // Save the marker instance
-      setMap(mapInstance); // Save the map instance
+      setMarker(newMarker);
+      setMap(mapInstance);
 
       mapInstance.on('move', () => {
         const center = mapInstance.getCenter();
@@ -60,16 +65,14 @@ const MapComponent = () => {
       geocoder.on('result', (event) => {
         const { result } = event;
         const lngLat = result.geometry.coordinates;
-        mapInstance.flyTo({ center: lngLat, zoom: 18 }); // Zoom to level 18
+        mapInstance.flyTo({ center: lngLat, zoom: 18 });
       });
 
-      // Add zoom controls
       const nav = new mapboxgl.NavigationControl();
       mapInstance.addControl(nav, 'bottom-right');
 
-      // Hide the magnifying glass icon
       const interval = setInterval(() => {
-        const icon = document.querySelector('.mapboxgl-ctrl-geocoder--icon');
+        const icon = document.querySelector('.mapboxgl-ctrl-geocoder--icon') as HTMLElement;
         if (icon) {
           icon.style.display = 'none';
           clearInterval(interval);
@@ -78,7 +81,7 @@ const MapComponent = () => {
 
       return () => {
         if (geocoderContainerRef.current) {
-          geocoderContainerRef.current.innerHTML = ''; // Clear the geocoder container
+          geocoderContainerRef.current.innerHTML = '';
         }
         mapInstance.remove();
       };
@@ -88,10 +91,8 @@ const MapComponent = () => {
   }, [map, markerCoordinates]);
 
   const toggleMarker = () => {
-    if (isMarkerVisible) {
-      marker.remove();
-    } else {
-      marker.addTo(map);
+    if (marker && map) {
+      isMarkerVisible ? marker.remove() : marker.addTo(map);
     }
     setIsMarkerVisible(!isMarkerVisible);
     setIsExpanded(!isExpanded);
@@ -100,14 +101,17 @@ const MapComponent = () => {
   const saveCoordinates = async () => {
     const jsonContent = JSON.stringify(markerCoordinates);
     try {
-      const handle = await window.showSaveFilePicker({
+      const customWindow: CustomWindow = window as CustomWindow;
+      if (!customWindow.showSaveFilePicker) {
+        alert("Saving files directly from the browser is not supported in this environment.");
+        return;
+      }
+      const handle = await customWindow.showSaveFilePicker({
         suggestedName: 'coordinates.json',
-        types: [
-          {
-            description: 'JSON Files',
-            accept: { 'application/json': ['.json'] }
-          }
-        ]
+        types: [{
+          description: 'JSON Files',
+          accept: { 'application/json': ['.json'] }
+        }]
       });
 
       const writable = await handle.createWritable();
