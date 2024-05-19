@@ -83,4 +83,10 @@ body {
 .mapboxgl-ctrl-geocoder--suggestion {
   padding: 10px;
   border: none;
+  background-color: white; /* Ensures the background is consistently white */
+  cursor: pointer; /* Changes the cursor to a pointer when hovering over suggestions */
+}
+
+.mapboxgl-ctrl-geocoder--suggestion:hover {
+  background-color: #f0f0f0; /* Optional: Changes background on hover for better visual feedback */
 }
