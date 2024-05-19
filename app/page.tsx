@@ -8,17 +8,17 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || '';
 
 export default function Home() {
-  const mapContainer = useRef(null);
-  const map = useRef(null);
-  const [lng, setLng] = useState(null);
-  const [lat, setLat] = useState(null);
+  const mapContainer = useRef<any>('');
+  const map = useRef<any>(null);
+  const [lng, setLng] = useState<any>(null);
+  const [lat, setLat] = useState<any>(null);
   const [zoom, setZoom] = useState(9);
   const geocoderContainer = useRef(null);
 
   useEffect(() => {
     if (map.current) return; // Initialize map only once
 
-    const initializeMap = ({ setLng, setLat, lng, lat }) => {
+    const initializeMap = ({ setLng, setLat, lng, lat }: any) => {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
@@ -26,14 +26,14 @@ export default function Home() {
         zoom: zoom,
         dragRotate: false,
         touchZoomRotate: false,
-        projection: 'mercator',
+        projection: 'mercator' as unknown as mapboxgl.Projection,
       });
 
       map.current.on('move', () => {
-        const { lng, lat } = map.current.getCenter();
+        const { lng, lat } = map.current!.getCenter();
         setLng(lng.toFixed(4));
         setLat(lat.toFixed(4));
-        setZoom(map.current.getZoom().toFixed(2));
+        setZoom(map.current!.getZoom().toFixed(2));
       });
 
       // Add the geocoder to the map
@@ -42,14 +42,14 @@ export default function Home() {
         mapboxgl: mapboxgl,
         marker: false,
       });
-      geocoder.addTo(geocoderContainer.current);
+      geocoder.addTo(geocoderContainer.current!);
 
       geocoder.on('result', (e) => {
         const { result } = e;
         const [lng, lat] = result.center;
         setLng(lng);
         setLat(lat);
-        map.current.flyTo({ center: result.center, zoom: zoom });
+        map.current!.flyTo({ center: result.center, zoom: zoom });
       });
     };
 
