@@ -60,8 +60,12 @@ const MapComponent = () => {
       geocoder.on('result', (event) => {
         const { result } = event;
         const lngLat = result.geometry.coordinates;
-        mapInstance.flyTo({ center: lngLat, zoom: 18 });
+        mapInstance.flyTo({ center: lngLat, zoom: 18 }); // Zoom to level 18
       });
+
+      // Add zoom controls
+      const nav = new mapboxgl.NavigationControl();
+      mapInstance.addControl(nav, 'bottom-right');
 
       // Hide the magnifying glass icon
       const interval = setInterval(() => {
@@ -132,4 +136,3 @@ const MapComponent = () => {
 };
 
 export default MapComponent;
-
