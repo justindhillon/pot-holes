@@ -46,7 +46,7 @@ const AuthenticationPage = () => {
 				<Card className="w-full max-w-md">
 					<CardHeader>
 						<CardTitle className="text-center text-2xl font-bold text-gray-700">
-							BC Driver's License Authentication
+							Driver's License Authentication
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
