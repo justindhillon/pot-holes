@@ -8,71 +8,69 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || '';
 
 export default function Home() {
-  const mapContainer = useRef<any>('');
-  const map = useRef<any>(null);
-  const [lng, setLng] = useState<any>(null);
-  const [lat, setLat] = useState<any>(null);
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const geocoderContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null); // Adjusted for TypeScript
+  const [lng, setLng] = useState(-123.1207); // Default longitude
+  const [lat, setLat] = useState(49.2827); // Default latitude
   const [zoom, setZoom] = useState(9);
-  const geocoderContainer = useRef(null);
 
   useEffect(() => {
-    if (map.current) return; // Initialize map only once
+    if (map.current) return; // Prevent re-initializing
 
-    const initializeMap = ({ setLng, setLat, lng, lat }: any) => {
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [lng, lat],
-        zoom: zoom,
-        dragRotate: false,
-        touchZoomRotate: false,
-        projection: 'mercator' as unknown as mapboxgl.Projection,
+    // Initialize map
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [lng, lat],
+      zoom: zoom,
+      dragRotate: false,
+      touchZoomRotate: false,
+    });
+
+    // Map events
+    map.current.on('move', () => {
+      const center = map.current.getCenter();
+      setLng(parseFloat(center.lng.toFixed(4)));
+      setLat(parseFloat(center.lat.toFixed(4)));
+      setZoom(parseFloat(map.current.getZoom().toFixed(2)));
+    });
+
+    // Initialize geocoder
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl,
+      marker: false,
+      container: geocoderContainer.current! // Using the non-null assertion
+    });
+
+    geocoder.addTo(map.current);
+
+    geocoder.on('result', (e) => {
+      const result = e.result;
+      map.current!.flyTo({
+        center: result.center,
+        zoom: zoom
       });
+    });
 
-      map.current.on('move', () => {
-        const { lng, lat } = map.current!.getCenter();
-        setLng(lng.toFixed(4));
-        setLat(lat.toFixed(4));
-        setZoom(map.current!.getZoom().toFixed(2));
-      });
-
-      // Add the geocoder to the map
-      const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        marker: false,
-      });
-      geocoder.addTo(geocoderContainer.current!);
-
-      geocoder.on('result', (e) => {
-        const { result } = e;
-        const [lng, lat] = result.center;
-        setLng(lng);
-        setLat(lat);
-        map.current!.flyTo({ center: result.center, zoom: zoom });
-      });
-    };
-
+    // Handle geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        position => {
           const { longitude, latitude } = position.coords;
           setLng(longitude);
           setLat(latitude);
-          initializeMap({ setLng, setLat, lng: longitude, lat: latitude });
+          map.current!.setCenter([longitude, latitude]);
         },
         () => {
-          const defaultLng = -122.9202;
-          const defaultLat = 49.2791;
-          setLng(defaultLng);
-          setLat(defaultLat);
-          initializeMap({ setLng, setLat, lng: defaultLng, lat: defaultLat });
+          console.error('Geolocation permission denied');
         }
       );
     } else {
       console.error('Geolocation is not supported by this browser.');
     }
-  }, [zoom]);
+  }, []);
 
   return (
     <div>

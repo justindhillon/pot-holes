@@ -39,13 +39,6 @@ body {
 .geocoder-container {
   position: absolute;
   z-index: 1;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 8px;
-  background: white;
-  padding: 10px;
-  color: black; /* Ensuring text is black */
+  top: 10;
+  left: 10;
 }
-
-
