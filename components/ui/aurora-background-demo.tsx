@@ -6,7 +6,7 @@ import { AuroraBackground } from "../ui/aurora-background";
 
 export function AuroraBackgroundDemo() {
 	return (
-		<div class="dark">
+		<div className="dark">
 			<AuroraBackground>
 				<motion.div
 					initial={{ opacity: 0.0, y: 40 }}
