@@ -4,7 +4,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 
-// Ensure you have set the environment variable NEXT_PUBLIC_MAPBOXAPI
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || '';
 
 export default function Home() {
@@ -36,7 +35,35 @@ export default function Home() {
         setZoom(map.current!.getZoom().toFixed(2));
       });
 
-      // Add the geocoder to the map
+      map.current.on('load', () => {
+        fetch('http://172.232.175.150:8000/database.json')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+          })
+          .then(data => {
+            map.current.addSource('earthquakes', {
+              type: 'geojson',
+              data: data
+            });
+
+            map.current.addLayer({
+              'id': 'earthquakes-layer',
+              'type': 'circle',
+              'source': 'earthquakes',
+              'paint': {
+                'circle-radius': 4,
+                'circle-stroke-width': 2,
+                'circle-color': 'red',
+                'circle-stroke-color': 'white'
+              }
+            });
+          })
+          .catch(error => console.error('There was a problem with the fetch operation:', error));
+      });
+
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
