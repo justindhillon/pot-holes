@@ -99,6 +99,25 @@ const MapComponent = () => {
                   'circle-stroke-color': 'white'
                 }
               });
+
+              // Initialize popup
+              const popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false
+              });
+
+              // Add tooltip
+              mapInstance.on('mousemove', 'earthquakes-layer', (e) => {
+                const time = new Date(e.features![0]!.properties!.time).toLocaleString();
+                popup.setLngLat(e.features![0].geometry.coordinates)
+                  .setHTML(`<p>${time}</p>`)
+                  .addTo(mapInstance);
+              });
+
+              // Remove tooltip when the mouse leaves the layer
+              mapInstance.on('mouseleave', 'earthquakes-layer', () => {
+                popup.remove();
+              });
             }
           })
           .catch(error => console.error('There was a problem with the fetch operation:', error));
