@@ -90,13 +90,34 @@ body {
   background-color: #f0f0f0;
 }
 
-.save-button {
+.toggle-button {
   position: absolute;
   top: 20px;
   right: 20px;
   z-index: 1000;
+  width: 40px;
+  height: 40px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-button:hover {
+  background-color: blue;
+}
+
+.save-button {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  z-index: 1000;
   padding: 10px 20px;
-  background-color: Black;
+  background-color: black;
   color: white;
   border: none;
   border-radius: 20px;
