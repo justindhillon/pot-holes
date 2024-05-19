@@ -147,3 +147,7 @@ body {
     background-color: white;
     color: black;
   }
+  .mapboxgl-popup-content {
+    color: black; /* Ensures text is black */
+  }
+  

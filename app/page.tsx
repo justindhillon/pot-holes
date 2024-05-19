@@ -108,9 +108,11 @@ const MapComponent = () => {
 
               // Add tooltip
               mapInstance.on('mousemove', 'earthquakes-layer', (e) => {
+                // Assuming 'dateAdded' is available in your properties
                 const time = new Date(e.features![0]!.properties!.time).toLocaleString();
+                const dateAdded = new Date(e.features![0]!.properties!.dateAdded).toLocaleDateString();
                 popup.setLngLat(e.features![0].geometry.coordinates)
-                  .setHTML(`<p>${time}</p>`)
+                  .setHTML(`<p>Added on: ${dateAdded}</p><p>${time}</p>`)
                   .addTo(mapInstance);
               });
 
@@ -121,7 +123,7 @@ const MapComponent = () => {
             }
           })
           .catch(error => console.error('There was a problem with the fetch operation:', error));
-    }     
+      }
 
       mapInstance.on('load', () => {
         fetchDataAndRefreshMap();
