@@ -138,8 +138,9 @@ const MapComponent = () => {
                     htmlContent = `<p>No valid data available</p>`;
                   }
               
-                  // Set popup content
-                  popup.setLngLat(feature.geometry.coordinates)
+                  const coordinates = (feature.geometry as GeoJSON.Point).coordinates;
+                  const lngLat: [number, number] = coordinates as [number, number]; // Convert to [number, number]
+                  popup.setLngLat(lngLat)
                     .setHTML(htmlContent)
                     .addTo(mapInstance);
                 }
