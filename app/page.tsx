@@ -51,7 +51,7 @@ const MapComponent = () => {
       setMarker(newMarker); // Save the marker instance
       setMap(mapInstance); // Save the map instance
 
-      mapInstance.on('moveend', () => {
+      mapInstance.on('move', () => {
         const center = mapInstance.getCenter();
         newMarker.setLngLat(center);
         setMarkerCoordinates({ lng: center.lng, lat: center.lat });
@@ -60,7 +60,7 @@ const MapComponent = () => {
       geocoder.on('result', (event) => {
         const { result } = event;
         const lngLat = result.geometry.coordinates;
-        mapInstance.flyTo({ center: lngLat, zoom: 18 }); // Zoom to level 18
+        mapInstance.flyTo({ center: lngLat, zoom: 18 });
       });
 
       // Hide the magnifying glass icon
@@ -132,3 +132,4 @@ const MapComponent = () => {
 };
 
 export default MapComponent;
+
