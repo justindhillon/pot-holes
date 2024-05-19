@@ -35,7 +35,9 @@ const MapComponent = () => {
         container: mapContainerRef.current!, // Assert non-null
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [markerCoordinates.lng, markerCoordinates.lat],
-        zoom: 14
+        zoom: 14,
+        dragRotate: false,
+        touchZoomRotate: false,
       });
 
       const geocoder = new MapboxGeocoder({
