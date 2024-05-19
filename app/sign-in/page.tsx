@@ -7,15 +7,16 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from "../components/ui/card";
-import { Label } from "../components/ui/label";
-import { BackgroundGradient } from "../components/ui/background-gradient";
-import { Button } from "../components/ui/button";
+} from "../../components/ui/card";
+import { Label } from "../../components/ui/label";
+import { BackgroundGradient } from "../../components/ui/background-gradient";
+import { Button } from "../../components/ui/button";
 
 const AuthenticationPage = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [isClient, setIsClient] = useState(false);
 	const [file, setFile] = useState<File | null>(null);
+	const [filePreview, setFilePreview] = useState<string | null>(null);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -25,6 +26,9 @@ const AuthenticationPage = () => {
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const selectedFile = event.target.files?.[0] || null;
 		setFile(selectedFile);
+		if (selectedFile) {
+			setFilePreview(URL.createObjectURL(selectedFile));
+		}
 	};
 
 	const handleUploadComplete = async () => {
@@ -49,7 +53,7 @@ const AuthenticationPage = () => {
 			const data = await response.json();
 
 			if (data.Authentication) {
-				router.push("/main");
+				router.push("/maps");
 			} else {
 				setError(data.Error || "Authentication failed. Please try again.");
 			}
@@ -75,41 +79,49 @@ const AuthenticationPage = () => {
 							></Label>
 							{isClient && (
 								<div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md">
-									<div className="space-y-1 text-center">
-										<svg
-											className="mx-auto h-12 w-12 text-gray-400"
-											stroke="currentColor"
-											fill="none"
-											viewBox="0 0 48 48"
-											aria-hidden="true"
-										>
-											<path
-												d="M28 8H12a2 2 0 00-2 2v28a2 2 0 002 2h24a2 2 0 002-2V20L28 8z"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											/>
-										</svg>
-										<div className="flex text-sm text-gray-600">
-											<label
-												htmlFor="file-upload"
-												className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+									{filePreview ? (
+										<img
+											src={filePreview}
+											alt="Preview"
+											className="max-h-48 object-contain"
+										/>
+									) : (
+										<div className="space-y-1 text-center">
+											<svg
+												className="mx-auto h-12 w-12 text-gray-400"
+												stroke="currentColor"
+												fill="none"
+												viewBox="0 0 48 48"
+												aria-hidden="true"
 											>
-												<span>Upload a file</span>
-												<input
-													id="file-upload"
-													name="file-upload"
-													type="file"
-													className="sr-only"
-													onChange={handleFileChange}
+												<path
+													d="M28 8H12a2 2 0 00-2 2v28a2 2 0 002 2h24a2 2 0 002-2V20L28 8z"
+													strokeWidth="2"
+													strokeLinecap="round"
+													strokeLinejoin="round"
 												/>
-											</label>
-											<p className="pl-1">or drag and drop</p>
+											</svg>
+											<div className="flex text-sm text-gray-600">
+												<label
+													htmlFor="file-upload"
+													className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+												>
+													<span>Upload a file</span>
+													<input
+														id="file-upload"
+														name="file-upload"
+														type="file"
+														className="sr-only"
+														onChange={handleFileChange}
+													/>
+												</label>
+												<p className="pl-1">or drag and drop</p>
+											</div>
+											<p className="text-xs text-gray-500">
+												PNG, JPG, GIF up to 10MB
+											</p>
 										</div>
-										<p className="text-xs text-gray-500">
-											PNG, JPG, GIF up to 10MB
-										</p>
-									</div>
+									)}
 								</div>
 							)}
 						</div>
