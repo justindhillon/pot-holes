@@ -108,13 +108,47 @@ const MapComponent = () => {
 
               // Add tooltip
               mapInstance.on('mousemove', 'earthquakes-layer', (e) => {
-                // Assuming 'dateAdded' is available in your properties
-                const time = new Date(e.features![0]!.properties!.time).toLocaleString();
-                const dateAdded = new Date(e.features![0]!.properties!.dateAdded).toLocaleDateString();
-                popup.setLngLat(e.features![0].geometry.coordinates)
-                  .setHTML(`<p>Added on: ${dateAdded}</p><p>${time}</p>`)
-                  .addTo(mapInstance);
+                if (e.features && e.features.length > 0) {
+                  const feature = e.features[0];
+                  const properties = feature.properties;
+              
+                  // Log raw data values
+                  console.log("Raw time value:", properties?.time);
+                  console.log("Raw dateAdded value:", properties?.dateAdded);
+              
+                  // Parse time and dateAdded
+                  const time = properties?.time ? new Date(properties.time) : null;
+                  const dateAdded = properties?.dateAdded ? new Date(properties.dateAdded) : null;
+              
+                  // Check if parsed dates are valid
+                  const isValidTime = time && !isNaN(time.getTime());
+                  const isValidDateAdded = dateAdded && !isNaN(dateAdded.getTime());
+              
+                  // Generate HTML content based on validation
+                  let htmlContent = `<p>No valid data available</p>`;
+                  if (isValidDateAdded) {
+                    const dateAddedString = dateAdded.toLocaleDateString();
+                    const timeString = isValidTime ? time.toLocaleTimeString() : "Time unknown";
+                    htmlContent = `<p>Date: ${dateAddedString}</p><p>Time: ${timeString}</p>`;
+                  } else if (isValidTime) {
+                    const dateString = time.toLocaleDateString();
+                    const timeString = time.toLocaleTimeString();
+                    htmlContent = `<p>Date: ${dateString}</p><p>Time: ${timeString}</p>`;
+                  } else {
+                    htmlContent = `<p>No valid data available</p>`;
+                  }
+              
+                  // Set popup content
+                  popup.setLngLat(feature.geometry.coordinates)
+                    .setHTML(htmlContent)
+                    .addTo(mapInstance);
+                }
               });
+              
+              
+              
+              
+              
 
               // Remove tooltip when the mouse leaves the layer
               mapInstance.on('mouseleave', 'earthquakes-layer', () => {
