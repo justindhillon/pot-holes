@@ -64,7 +64,7 @@ const MapComponent = () => {
       });
 
       mapInstance.on('load', () => {
-        fetch('http://172.232.175.150:8001/database.json')
+        fetch('https://potholepatrolapi.co:8001/database.json')
           .then(response => {
             if (!response.ok) {
               throw new Error('Network response was not ok ' + response.statusText);
