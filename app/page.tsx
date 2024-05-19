@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
-import { FaPlus, FaMinus } from 'react-icons/fa'; // Import icons
+import { FaPlus, FaMinus, FaHome } from 'react-icons/fa'; // Import icons including FaHome
 
 // Extend Window interface for File System Access API
 interface CustomWindow extends Window {
@@ -147,6 +147,12 @@ const MapComponent = () => {
     }
   };
 
+  const goToInitialCoordinates = () => {
+    if (map) {
+      map.flyTo({ center: [initialCoordinates.lng, initialCoordinates.lat], zoom: 14 });
+    }
+  };
+
   return (
     <div>
       <div ref={geocoderContainerRef} className="geocoder-container" />
@@ -159,6 +165,9 @@ const MapComponent = () => {
           Save Coordinates
         </button>
       )}
+      <button onClick={goToInitialCoordinates} className="home-button">
+        <FaHome />
+      </button>
     </div>
   );
 };

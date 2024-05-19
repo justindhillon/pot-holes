@@ -129,3 +129,21 @@ body {
   background-color: white;
   color: black;
 }
+
+.home-button {
+    position: absolute;
+    bottom: 40px; /* Adjusted to move the button up */
+    left: 15px;
+    z-index: 1000;
+    padding: 10px 20px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  
+  .home-button:hover {
+    background-color: white;
+    color: black;
+  }
