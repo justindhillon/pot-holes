@@ -245,7 +245,7 @@ function timeAgo(date: any) {
       </button>
       {isExpanded && (
         <button onClick={saveCoordinates} className="save-button">
-          Save Coordinates
+          Place Pot Hole
         </button>
       )}
       <button onClick={goToInitialCoordinates} className="home-button">
