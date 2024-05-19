@@ -123,28 +123,40 @@ const MapComponent = () => {
   };
 
   const saveCoordinates = async () => {
-    const jsonContent = JSON.stringify(markerCoordinates);
-    try {
-      const customWindow: CustomWindow = window as CustomWindow;
-      if (!customWindow.showSaveFilePicker) {
-        alert("Saving files directly from the browser is not supported in this environment.");
-        return;
+    const postData = {
+      type: "Feature",
+      properties: {
+        driver_license_number: "7849",
+        image_id: "3934",
+        time: "1716089999"
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [45.0, -122.0, 0.0]
       }
-      const handle = await customWindow.showSaveFilePicker({
-        suggestedName: 'coordinates.json',
-        types: [{
-          description: 'JSON Files',
-          accept: { 'application/json': ['.json'] }
-        }]
+    };
+    
+    const url = "https://potholepatrolapi.co:8001/";
+    
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(postData)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Success:", data);
+      })
+      .catch(error => {
+        console.error("Error:", error);
       });
-
-      const writable = await handle.createWritable();
-      await writable.write(jsonContent);
-      await writable.close();
-      alert('Coordinates saved successfully!');
-    } catch (err) {
-      console.error('Error saving the file:', err);
-    }
   };
 
   const goToInitialCoordinates = () => {
