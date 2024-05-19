@@ -23,8 +23,9 @@ const MapComponent = () => {
   const [map, setMap] = useState<mapboxgl.Map | null>(null);
   const [marker, setMarker] = useState<mapboxgl.Marker | null>(null);
   const [markerCoordinates, setMarkerCoordinates] = useState(initialCoordinates);
-  const [isMarkerVisible, setIsMarkerVisible] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isMarkerVisible, setIsMarkerVisible] = useState(false); // State to manage marker visibility
+  const [isExpanded, setIsExpanded] = useState(false); // State to manage menu expansion
+  const geocoderContainer = useRef(null);
 
   useEffect(() => {
     if (map) return; // Prevent reinitialization
@@ -62,10 +63,41 @@ const MapComponent = () => {
         setMarkerCoordinates({ lng: center.lng, lat: center.lat });
       });
 
-      geocoder.on('result', (event) => {
-        const { result } = event;
-        const lngLat = result.geometry.coordinates;
-        mapInstance.flyTo({ center: lngLat, zoom: 18 });
+      mapInstance.on('load', () => {
+        fetch('http://172.232.175.150:8000/database.json')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+          })
+          .then(data => {
+            mapInstance.addSource('earthquakes', {
+              type: 'geojson',
+              data: data
+            });
+
+            mapInstance.addLayer({
+              'id': 'earthquakes-layer',
+              'type': 'circle',
+              'source': 'earthquakes',
+              'paint': {
+                'circle-radius': 4,
+                'circle-stroke-width': 2,
+                'circle-color': 'red',
+                'circle-stroke-color': 'white'
+              }
+            });
+          })
+          .catch(error => console.error('There was a problem with the fetch operation:', error));
+      });
+
+      geocoder.on('result', (e) => {
+        const { result } = e;
+        const [lng, lat] = result.center;
+        setLng(lng);
+        setLat(lat);
+        map.current!.flyTo({ center: result.center, zoom: zoom });
       });
 
       const nav = new mapboxgl.NavigationControl();
