@@ -6,7 +6,7 @@ import { AuroraBackground } from "../ui/aurora-background";
 
 export function AuroraBackgroundDemo() {
 	return (
-		<html class="dark">
+		<div class="dark">
 			<AuroraBackground>
 				<motion.div
 					initial={{ opacity: 0.0, y: 40 }}
@@ -32,6 +32,6 @@ export function AuroraBackgroundDemo() {
 					</a>
 				</motion.div>
 			</AuroraBackground>
-		</html>
+		</div>
 	);
 }
