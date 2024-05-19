@@ -57,7 +57,7 @@ const AuthenticationPage = () => {
 			} else {
 				setError(data.Error || "Authentication failed. Please try again.");
 			}
-		} catch (error) {
+		} catch (error: any) {
 			setError(`Error: ${error.message}`);
 		}
 	};
