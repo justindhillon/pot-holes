@@ -145,7 +145,7 @@ const MapComponent = () => {
       properties: {
         driver_license_number: "78499",
         image_id: "39934",
-        time: "1716089999"
+        time: Date.now()
       },
       geometry: {
         type: "Point",
