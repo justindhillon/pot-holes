@@ -1,9 +1,6 @@
-const AuthenticationPage = () => {
-  return (
-    <div>
-      Landing Page
-    </div>
-  )
-};
+import { AuroraBackgroundDemo } from "@/components/ui/aurora-background-demo";
 
-export default AuthenticationPage;
+// Change this to default export
+export default function Home() {
+	return <AuroraBackgroundDemo></AuroraBackgroundDemo>;
+}
