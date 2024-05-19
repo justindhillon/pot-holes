@@ -64,7 +64,7 @@ const MapComponent = () => {
       });
 
       mapInstance.on('load', () => {
-        fetch('http://172.232.175.150:8000/database.json')
+        fetch('http://172.232.175.150:8001/database.json')
           .then(response => {
             if (!response.ok) {
               throw new Error('Network response was not ok ' + response.statusText);
@@ -90,14 +90,6 @@ const MapComponent = () => {
             });
           })
           .catch(error => console.error('There was a problem with the fetch operation:', error));
-      });
-
-      geocoder.on('result', (e) => {
-        const { result } = e;
-        const [lng, lat] = result.center;
-        setLng(lng);
-        setLat(lat);
-        map.current!.flyTo({ center: result.center, zoom: zoom });
       });
 
       const nav = new mapboxgl.NavigationControl();
