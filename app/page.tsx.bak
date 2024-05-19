@@ -1,0 +1,88 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { BackgroundGradient } from "@/components/ui/background-gradient";
+import { Button } from "@/components/ui/button";
+
+const AuthenticationPage = () => {
+	const [error, setError] = useState<string | null>(null);
+	const [isClient, setIsClient] = useState(false);
+	const [file, setFile] = useState<File | null>(null);
+	const router = useRouter();
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const selectedFile = event.target.files?.[0] || null;
+		setFile(selectedFile);
+	};
+
+	const handleUploadComplete = async () => {
+		if (!file) {
+			setError("No file selected. Please try again.");
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append("file", file);
+
+		try {
+			const response = await fetch("http://potholepatrolapi.co:5001/upload", {
+				method: "POST",
+				body: formData,
+			});
+
+			if (!response.ok) {
+				throw new Error("Failed to upload the file");
+			}
+
+			const data = await response.json();
+
+			if (data.Authentication) {
+				router.push("/main");
+			} else {
+				setError(data.Error || "Authentication failed. Please try again.");
+			}
+		} catch (error) {
+			setError(`Error: ${error.message}`);
+		}
+	};
+
+	return (
+		<div className="flex justify-center items-center min-h-screen bg-gray-100">
+			<BackgroundGradient className="rounded-[22px] max-w-sm p-4 sm:p-10 bg-white dark:bg-zinc-900">
+				<Card className="w-full max-w-md">
+					<CardHeader>
+						<CardTitle className="text-black">
+							BC Driver's License Authentication
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<Label htmlFor="driversLicense"></Label>
+						{isClient && (
+							<input
+								type="file"
+								onChange={handleFileChange}
+								className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+							/>
+						)}
+						<Button
+							onClick={handleUploadComplete}
+							className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded"
+						>
+							Upload and Authenticate
+						</Button>
+						{error && <p className="mt-2 text-red-600">{error}</p>}
+					</CardContent>
+				</Card>
+			</BackgroundGradient>
+		</div>
+	);
+};
+
+export default AuthenticationPage;
