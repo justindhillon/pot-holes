@@ -25,7 +25,6 @@ const MapComponent = () => {
   const [markerCoordinates, setMarkerCoordinates] = useState(initialCoordinates);
   const [isMarkerVisible, setIsMarkerVisible] = useState(false); // State to manage marker visibility
   const [isExpanded, setIsExpanded] = useState(false); // State to manage menu expansion
-  const geocoderContainer = useRef(null);
 
   useEffect(() => {
     if (map) return; // Prevent reinitialization
@@ -65,7 +64,7 @@ const MapComponent = () => {
         setMarkerCoordinates({ lng: center.lng, lat: center.lat });
       });
 
-      mapInstance.on('load', () => {
+      function fetchDataAndRefreshMap() {
         fetch('https://potholepatrolapi.co:8001/database.json')
           .then(response => {
             if (!response.ok) {
@@ -74,11 +73,21 @@ const MapComponent = () => {
             return response.json();
           })
           .then(data => {
+            // Clear existing data source and layer
+            if (mapInstance.getLayer('earthquakes-layer')) {
+              mapInstance.removeLayer('earthquakes-layer');
+            }
+            
+            if (mapInstance.getSource('earthquakes')) {
+              mapInstance.removeSource('earthquakes');
+            }
+      
+            // Add new data source and layer
             mapInstance.addSource('earthquakes', {
               type: 'geojson',
               data: data
             });
-
+      
             mapInstance.addLayer({
               'id': 'earthquakes-layer',
               'type': 'circle',
@@ -92,6 +101,11 @@ const MapComponent = () => {
             });
           })
           .catch(error => console.error('There was a problem with the fetch operation:', error));
+      }    
+      
+      mapInstance.on('load', () => {
+        fetchDataAndRefreshMap();
+        setInterval(fetchDataAndRefreshMap, 10000);
       });
 
       const nav = new mapboxgl.NavigationControl();
