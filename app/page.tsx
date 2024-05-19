@@ -128,13 +128,13 @@ const MapComponent = () => {
     const postData = {
       type: "Feature",
       properties: {
-        driver_license_number: "7849",
-        image_id: "3934",
+        driver_license_number: "78499",
+        image_id: "39934",
         time: "1716089999"
       },
       geometry: {
         type: "Point",
-        coordinates: [45.0, -122.0, 0.0]
+        coordinates: [markerCoordinates.lng, markerCoordinates.lat, 0.0]
       }
     };
     
