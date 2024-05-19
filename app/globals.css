@@ -32,20 +32,50 @@ body {
   }
 }
 
-.map-container {
-  height: 100vh;
-}
 
 .geocoder-container {
   position: absolute;
+  color: black;
   z-index: 1;
   top: 10%;
   left: 50%;
   transform: translateX(-50%);
-  border-radius: 8px;
-  background: white;
-  padding: 10px;
-  color: black; /* Ensuring text is black */
+  width: 400px; 
 }
 
+.geocoder-container input {
+  width: 100%;
+  padding: 10px;
+  color: black;
+  font-size: 16px; 
+}
+.map-container {
+  position: relative; /* Needed for absolute positioning of children */
+  width: 100%; /* Full width */
+  height: 100vh; /* Full height of the viewport */
+}
 
+.geocoder-container {
+  position: absolute;
+  top: 20px; /* Adjust this to move closer to the top of the map */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.mapboxgl-ctrl-geocoder {
+  width: 400px; /* Fixed width */
+  background: white; /* White background for readability */
+  overflow: hidden; /* Prevents text from wrapping to a new line */
+  white-space: nowrap; /* Keeps the text on a single line */
+  text-overflow: ellipsis; /* Adds ellipsis when text overflows */
+  border-radius: 20px; /* Rounded corners for the search bar */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Optional: Adds shadow for better visibility */
+}
+.mapboxgl-ctrl-geocoder--icon {
+  display: none; /* Hides the magnifying glass icon */
+}
+
+.mapboxgl-ctrl-geocoder--input {
+  padding-left: 10px; /* Adjust padding if necessary after icon removal */
+}

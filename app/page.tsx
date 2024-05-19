@@ -1,81 +1,54 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import 'mapbox-gl/dist/mapbox-gl.css'; // Ensure to import default Mapbox and Geocoder styles
 
-// Ensure you have set the environment variable NEXT_PUBLIC_MAPBOXAPI
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXAPI || '';
 
-export default function Home() {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const geocoderContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null); // Adjusted for TypeScript
-  const [lng, setLng] = useState(-123.1207); // Default longitude
-  const [lat, setLat] = useState(49.2827); // Default latitude
-  const [zoom, setZoom] = useState(9);
+const MapComponent = () => {
+  const mapContainer = useRef(null);
+  const geocoderContainer = useRef(null); // Dedicated container for the geocoder
 
   useEffect(() => {
-    if (map.current) return; // Prevent re-initializing
+    if (!mapContainer.current) return; // exit if map container not initialized
 
-    // Initialize map
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current!,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [lng, lat],
-      zoom: zoom,
-      dragRotate: false,
-      touchZoomRotate: false,
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [-123.1207, 49.2827],
+      zoom: 9
     });
 
-    // Map events
-    map.current.on('move', () => {
-      const center = map.current.getCenter();
-      setLng(parseFloat(center.lng.toFixed(4)));
-      setLat(parseFloat(center.lat.toFixed(4)));
-      setZoom(parseFloat(map.current.getZoom().toFixed(2)));
-    });
-
-    // Initialize geocoder
+    // Initialize the geocoder
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl,
+      placeholder: 'Search for places...',
       marker: false,
-      container: geocoderContainer.current! // Using the non-null assertion
     });
 
-    geocoder.addTo(map.current);
-
-    geocoder.on('result', (e) => {
-      const result = e.result;
-      map.current!.flyTo({
-        center: result.center,
-        zoom: zoom
-      });
-    });
-
-    // Handle geolocation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const { longitude, latitude } = position.coords;
-          setLng(longitude);
-          setLat(latitude);
-          map.current!.setCenter([longitude, latitude]);
-        },
-        () => {
-          console.error('Geolocation permission denied');
-        }
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
+    // Append geocoder to the geocoderContainer directly, without adding to map controls
+    if (geocoderContainer.current) {
+      geocoderContainer.current.appendChild(geocoder.onAdd(map));
     }
+
+    return () => {
+      map.remove(); // Cleanup map when component unmounts
+      if (geocoderContainer.current) {
+        geocoderContainer.current.removeChild(geocoderContainer.current.firstChild);
+      }
+    };
   }, []);
 
   return (
     <div>
-      <div ref={geocoderContainer} className="geocoder-container" />
-      <div ref={mapContainer} className="map-container" />
+      <div ref={mapContainer} className="map-container" style={{ height: '100vh' }}>
+        <div ref={geocoderContainer} className="geocoder-container" />
+      </div>
     </div>
   );
-}
+};
+
+export default MapComponent;
