@@ -1,11 +1,11 @@
 "use client"; // Add this at the top of your component file
 
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { FaPlus, FaMinus, FaHome } from 'react-icons/fa'; // Import icons including FaHome
+import mapboxgl, { GeoJSONSource } from 'mapbox-gl';
 
 // Extend Window interface for File System Access API
 interface CustomWindow extends Window {
@@ -25,6 +25,7 @@ const MapComponent = () => {
   const [markerCoordinates, setMarkerCoordinates] = useState(initialCoordinates);
   const [isMarkerVisible, setIsMarkerVisible] = useState(false); // State to manage marker visibility
   const [isExpanded, setIsExpanded] = useState(false); // State to manage menu expansion
+  const mapInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     if (map) return; // Prevent reinitialization
@@ -73,39 +74,39 @@ const MapComponent = () => {
             return response.json();
           })
           .then(data => {
-            // Clear existing data source and layer
+            // Check if the earthquakes layer already exists
             if (mapInstance.getLayer('earthquakes-layer')) {
-              mapInstance.removeLayer('earthquakes-layer');
-            }
-            
-            if (mapInstance.getSource('earthquakes')) {
-              mapInstance.removeSource('earthquakes');
-            }
-      
-            // Add new data source and layer
-            mapInstance.addSource('earthquakes', {
-              type: 'geojson',
-              data: data
-            });
-      
-            mapInstance.addLayer({
-              'id': 'earthquakes-layer',
-              'type': 'circle',
-              'source': 'earthquakes',
-              'paint': {
-                'circle-radius': 4,
-                'circle-stroke-width': 2,
-                'circle-color': 'red',
-                'circle-stroke-color': 'white'
+              // Update the data source instead of removing and re-adding the layer
+              const source = mapInstance.getSource('earthquakes') as GeoJSONSource;
+              if (source) {
+                source.setData(data);
               }
-            });
+            } else {
+              // Add new data source and layer
+              mapInstance.addSource('earthquakes', {
+                type: 'geojson',
+                data: data
+              });
+    
+              mapInstance.addLayer({
+                'id': 'earthquakes-layer',
+                'type': 'circle',
+                'source': 'earthquakes',
+                'paint': {
+                  'circle-radius': 4,
+                  'circle-stroke-width': 2,
+                  'circle-color': 'red',
+                  'circle-stroke-color': 'white'
+                }
+              });
+            }
           })
           .catch(error => console.error('There was a problem with the fetch operation:', error));
-      }    
-      
+    }     
+
       mapInstance.on('load', () => {
         fetchDataAndRefreshMap();
-        setInterval(fetchDataAndRefreshMap, 10000);
+        setInterval(fetchDataAndRefreshMap, 1000);
       });
 
       const nav = new mapboxgl.NavigationControl();
@@ -173,6 +174,7 @@ const MapComponent = () => {
       .catch(error => {
         console.error("Error:", error);
       });
+      toggleMarker();
   };
 
   const goToInitialCoordinates = () => {
