@@ -33,12 +33,10 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
                 with open('database.json', 'w') as file:
                     json.dump({"type": "FeatureCollection", "features": []}, file, indent=4)
 
+
             with open('database.json', 'r+') as file:
                 data = json.load(file)
-                # Check if 'features' key exists, if not, initialize it
-                if 'features' not in data:
-                    data['features'] = []
-                data['features'].append(new_feature)
+                data['features'].append(new_feature)  # Append new feature to the list of features
                 file.seek(0)
                 json.dump(data, file, indent=4)
                 file.truncate()
