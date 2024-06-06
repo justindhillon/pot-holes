@@ -1,0 +1,83 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -122.9199,
+                    49.2781
+                ]
+            },
+            "properties": {
+                "driver_license_number": "78499",
+                "image_id": "39934",
+                "time": 1717708663070
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -122.9123,
+                    49.2756
+                ]
+            },
+            "properties": {
+                "driver_license_number": "78500",
+                "image_id": "39935",
+                "time": 1717708673070
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "driver_license_number": "69149",
+                "image_id": "4024",
+                "time": "1716089999"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    69.0,
+                    -69.0,
+                    0.0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "driver_license_number": "78499",
+                "image_id": "39934",
+                "time": 1717708956846
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -122.92161659746145,
+                    49.28031175195832,
+                    0
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "driver_license_number": "78499",
+                "image_id": "39934",
+                "time": 1717709046422
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -122.91605068105808,
+                    49.280822251796224,
+                    0
+                ]
+            }
+        }
+    ]
+}
